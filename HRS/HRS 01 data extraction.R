@@ -1,15 +1,4 @@
-####1. Load package####
-library(haven)
-library(dplyr)
-
-randhrs<- haven::read_dta("randhrs1992_2020v2.dta")
-hhrs <- haven::read_dta("H_HRS_c.dta")
-#langa <- haven::read_dta("hrs\\cogfinalimp_9520wide.dta")
-  
-
-
-
-####2. Import HRS harmonized data####
+####1. Import HRS harmonized data####
 subdat_demo <- subset(randhrs,
                       select = c(hhid,hhidpn, #household id + person number
                                  r10iwstat, r11iwstat,r12iwstat,r13iwstat,
@@ -48,7 +37,6 @@ subdat_h <- subset(hhrs,
                    ))                                
 
 data01 <- merge(subdat_demo, subdat_h,by = c("hhid","hhidpn"))
-# data01 <- merge(data01,langa, by = c("hhidpn"))
 
 cognition <- subset(randhrs, select = c(hhid, hhidpn,r10tr20,
                                                      r11tr20,
@@ -56,8 +44,6 @@ cognition <- subset(randhrs, select = c(hhid, hhidpn,r10tr20,
                                                      r13tr20,
                                                      r14tr20p
                                                     ))
-names(cognition) <- c("hhid","hhidpn","r10tr20","r11tr20","r12tr20","r13tr20","r14tr20")
-data01 <- merge(data01, cognition, by = c("hhid","hhidpn"))
 
 #interview time
 base_date <- as.Date("1960-01-01") 
@@ -87,7 +73,4 @@ data01$riwmid_w2<-  data01$r11iwmid_year + data01$r11iwmid_month/12
 data01$riwmid_w3<-  data01$r12iwmid_year + data01$r12iwmid_month/12
 data01$riwmid_w4<-  data01$r13iwmid_year + data01$r13iwmid_month/12
 data01$riwmid_w5<-  data01$r14iwmid_year + data01$r14iwmid_month/12
-
-####4. Extract data for next steps####
-write.csv(data01, "HRS_analysis.csv")
 
