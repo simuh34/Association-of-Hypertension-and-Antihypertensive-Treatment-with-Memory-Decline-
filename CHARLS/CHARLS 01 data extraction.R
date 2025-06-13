@@ -1,11 +1,3 @@
-####1. Load package####
-library(haven)
-library(dplyr)
-
-####2. Import CHARLS harmonized data####
-HCHARLS_D <- haven::read_dta("H_CHARLS_D_Data.dta")
-
-####3. Extract relevant variables for analysis####
 CHARLS_analysis <- subset(HCHARLS_D, select = c(ID, #personel id
                                       r1iwstat, r2iwstat, r3iwstat, r4iwstat,#wave status, interview status
                                       r1agey, r2agey, r3agey, r4agey,#age at interview
@@ -36,8 +28,6 @@ CHARLS_analysis <- subset(HCHARLS_D, select = c(ID, #personel id
                                       r1wtresp #weight
                                       ))
 
-#outcome: memory
-#only use memory (20 points)-rwtr20
 #The tr20 is the sum of delay and immediate, 
 cognition <- subset(HCHARLS_D, select = c(ID,
                                           r1tr20, 
@@ -51,28 +41,6 @@ cognition_test$r4tr20 <- cognition_test$r4imrc_eqt + cognition_test$r4dlrc_eqt
 cognition$ID <- as.numeric(cognition$ID)
 cognition_test$ID <- as.numeric(cognition_test$ID)
 cognition <- inner_join(cognition, cognition_test, by =  "ID")
-
-#check the NA in each cognition measures
-library(naniar)
-mdcog <- cognition %>%
-  miss_var_summary()
-#Note: there are more NAs in delay recall than immediate recall. 
-#The tr20 is the sum of delay and immediate, which makes its N is close to the N of delayed.
-#Alternatively, we can take the average of two recall measures if both have no NA; 
-#if one has NA, especially delay, we use the immediate as the memory measure. 
-#By doing this, it can slightly ease the NA issue
-
-#check the summary of outcome memory score
-sapply(cognition[, c("r1tr20", "r2tr20", "r3tr20", "r4tr20")], summary)
-
-#select columns containing "tr" and dynamically rename them
-cognition <- cognition %>%
-  select(contains("tr")) %>%
-  rename_with(~ paste0("cognition", seq_along(.)))
-
-summary(cognition$cognition1)
-hist(cognition$cognition1)
-CHARLS_analysis <- cbind(CHARLS_analysis, cognition)
 
 #rename variables
 CHARLS_analysis <- CHARLS_analysis %>%
@@ -98,8 +66,4 @@ CHARLS_analysis$riwmid_w2<-  CHARLS_analysis$r2iwy + CHARLS_analysis$r2iwm/12
 CHARLS_analysis$riwmid_w3<-  CHARLS_analysis$r3iwy + CHARLS_analysis$r3iwm/12
 CHARLS_analysis$riwmid_w4<-  CHARLS_analysis$r4iwy + CHARLS_analysis$r4iwm/12
 
-
-
-####4. Extract data for next steps####
-write.csv(CHARLS_analysis, "CHARLS_analysis.csv")
 
