@@ -1,0 +1,2 @@
+# Association-of-Hypertension-and-Antihypertensive-Treatment-with-Memory-Decline-
+This project analyzes longitudinal data from HRS, ELSA, MHAS, and CHARLS to investigate hypertension, antihypertensive treatment status, and 6-8-year memory decline in adults ≥50 across the US, England, Mexico, and China. Findings underscore hypertension as a modifiable target for ADRD mitigation, advocating tailored public health strategies.
