@@ -1,17 +1,3 @@
-#' hypertension and cognition
-#' data cleaning
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-library(haven)
-library(naniar)
-library(dplyr)
-
-#' ELSA: wave5-9 (2010-2018)
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-elsa <- haven::read_dta("H_ELSA_g3.dta")
-
-#' 
-#' 
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #demographic info
 demog <- subset(elsa, select = c(idauniqc, # unique individual serial number /6-char
                                     r5iwstat, r6iwstat, r7iwstat, r8iwstat, r9iwstat,#wave status, interview status
@@ -42,9 +28,6 @@ demog <- subset(elsa, select = c(idauniqc, # unique individual serial number /6-
                                  r6lwtresp#weight
 ))
 
-#' 
-#' 
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #outcome: memory (20 points) + mental status (10 points)
 #RwBWC20: R able to count backwards from 20
 cognition <- subset(elsa, select = c(r5tr20, #r5orient, #ser7 and bwc20 are not provided in wave 5 and 6
@@ -54,38 +37,6 @@ cognition <- subset(elsa, select = c(r5tr20, #r5orient, #ser7 and bwc20 are not 
                                         r9tr20#, r9orient#, r9ser7, r9bwc20
 ))
 
-#' 
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#check the NA in each cognition measures
-library(naniar)
-mdcog <- cognition %>%
-  miss_var_summary()
-mdcog
-#Note: there are more NAs in delay recall than immediate recall. 
-#The tr20 is the sum of delay and immediate, which makes its N is close to the N of delayed.
-#Alternatively, we can take the average of two recall measures if both have no NA; 
-#if one has NA, especially delay, we use the immediate as the memory measure. 
-#By doing this, it can slightly ease the NA issue
-
-#' 
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#check summary
-summary(cognition$r6tr20)#0-20
-#summary(cognition$r7ser7)#0-5
-#summary(cognition$r7orient)#0-4
-#summary(cognition$r7bwc20)#0-2
-
-#' 
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-##covert draw from charater to numeric
-#cognition[, c(4, 8, 12, 16)] <- lapply(cognition[, c(4, 8, 12, 16)], as.numeric)
-#summary(cognition$r1draw)
-
-#' 
-#' 
-#' 
-#' 
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cognition$cognition5 <- cognition$r5tr20
 summary(cognition$cognition5)
 
@@ -102,9 +53,6 @@ summary(cognition$cognition8)
 cognition$cognition9 <- cognition$r9tr20
 summary(cognition$cognition9)
 
-#' 
-#' 
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #only keep the total cognition score we need
 cognition <- cognition[, 6:10]
 
@@ -112,24 +60,14 @@ elsa_harmonized <- cbind(demog, cognition)
 
 elsa_analysis <- elsa_harmonized
 
-#' 
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #rename variables
 elsa_analysis <- elsa_analysis %>%
   rename(age = r6agey, gender = ragender, education = raeducl, mother_edu = ramomeduage, father_edu = radadeduage, marital_status = r6mstat, birthplace = rabplace, race = raracem, consumption = hh6ctot1m, bmi = r6mbmi,wealth = h6atotb)
 
-#' 
-#' 
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #interview time
 elsa_analysis$riwmid_w5<-  elsa_analysis$r5iwindy + elsa_analysis$r5iwindm/12
 elsa_analysis$riwmid_w6<-  elsa_analysis$r6iwindy + elsa_analysis$r6iwindm/12
 elsa_analysis$riwmid_w7<-  elsa_analysis$r7iwindy + elsa_analysis$r7iwindm/12
 elsa_analysis$riwmid_w8<-  elsa_analysis$r8iwindy + elsa_analysis$r8iwindm/12
 elsa_analysis$riwmid_w9<-  elsa_analysis$r9iwindy + elsa_analysis$r9iwindm/12
-
-#' 
-## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#Save data
-write.csv(elsa_analysis, "elsa_analysis.csv")
 
