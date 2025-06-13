@@ -1,11 +1,3 @@
-####1. Load package####
-library(haven)
-library(dplyr)
-
-####2. Import MHAS harmonized data####
-HMHAS_D <- haven::read_dta("H_MHAS_c.dta")
-
-####3. Extract relevant variables for analysis
 MHAS_analysis <- subset(HMHAS_D, select = c(np, #personel id
                                             r3iwstat, r4iwstat, r5iwstat,#wave status, interview status
                                             r3agey, r4agey, r5agey,#age at interview
@@ -36,40 +28,11 @@ MHAS_analysis <- subset(HMHAS_D, select = c(np, #personel id
                                             h3hhres,#people living with
                                             r3wtresp)) #weight
 
-#outcome
+
 cognition <- subset(HMHAS_D, select = c(r3tr8_m,
                                         r4tr8_m,
                                         r5tr8_m))
 
-##Serial 7’s starts from 4 wave
-
-#check the NA in each cognition measures
-library(naniar)
-mdcog <- cognition %>%
-  miss_var_summary()
-head(mdcog)
-
-#check the summary of outcome memory score
-sapply(cognition[, c("r3tr8_m", "r4tr8_m", "r5tr8_m")], summary)
-
-#select columns containing "tr" and dynamically rename them
-cognition <- cognition %>%
-  select(contains("tr")) %>%
-  rename_with(~ paste0("cognition", seq_along(.)))
-
-summary(cognition$cognition3)
-hist(cognition$cognition1)#15716
-MHAS_analysis <- cbind(MHAS_analysis, cognition)
-
-
-prcl <- MHAS_analysis %>%
-  miss_var_summary()
-
-nrow(MHAS_analysis)#26839
-nrow(cognition)#26839
-
-
-#rename variables
 MHAS_analysis <- MHAS_analysis %>%
   rename(age = r3agey, 
          gender = ragender, 
@@ -91,9 +54,4 @@ MHAS_analysis$riwmid_w3<-  MHAS_analysis$r3iwy + MHAS_analysis$r3iwm/12
 MHAS_analysis$riwmid_w4<-  MHAS_analysis$r4iwy + MHAS_analysis$r4iwm/12
 MHAS_analysis$riwmid_w5<-  MHAS_analysis$r5iwy + MHAS_analysis$r5iwm/12
 
-
-####4. Extract data for next steps####
-write.csv(MHAS_analysis, "MHAS_analysis_extract.csv")
-
-summary(MHAS_analysis)
 
